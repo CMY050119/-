@@ -86,37 +86,23 @@ def truncate(s: str, n: int = 280) -> str:
     return s if len(s) <= n else s[:n] + "…"
 
 
-def _fetch_with_retry(url: str, timeout: int = 60, retries: int = 3) -> dict:
-    """带重试的 HTTP GET，应对 GitHub Actions 海外访问国内 API 超时。"""
-    import time
-    last_err = None
-    for attempt in range(retries):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": UA})
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                return json.loads(resp.read().decode("utf-8"))
-        except Exception as e:
-            last_err = e
-            if attempt < retries - 1:
-                wait = (attempt + 1) * 5
-                print(f"  [RETRY] 第 {attempt+1} 次失败 ({e}), {wait}s 后重试...")
-                time.sleep(wait)
-    raise last_err
-
-
 def fetch_items() -> dict:
     now = datetime.now(timezone.utc)
     since = (now - timedelta(hours=6)).strftime("%Y-%m-%dT%H:%M:%SZ")
     params = {"mode": "selected", "since": since, "take": "50"}
     url = f"{API_ITEMS}?{urllib.parse.urlencode(params)}"
-    result = _fetch_with_retry(url)
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        result = json.loads(resp.read().decode("utf-8"))
     items = result.get("items", [])
 
     if len(items) < 5:
         since = (now - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
         params["since"] = since
         url = f"{API_ITEMS}?{urllib.parse.urlencode(params)}"
-        result = _fetch_with_retry(url)
+        req = urllib.request.Request(url, headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
         items = result.get("items", [])
 
     return {"items": items, "fetched_at": now.isoformat()}
