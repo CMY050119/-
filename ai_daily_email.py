@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AI HOT 瀹炴椂鏃ユ姤 鈥?閭欢 + 寰俊娴嬭瘯鍙峰弻閫氶亾鎺ㄩ€併€?
-鐢ㄦ硶锛歱ython ai_daily_email.py
+AI HOT 实时日报 — 邮件 + 微信测试号双通道推送。
+用法：python ai_daily_email.py
 """
 
 import json
@@ -20,7 +20,7 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # ============================================================
-# 閭閰嶇疆锛堜紭鍏堢幆澧冨彉閲忥紝鍏煎鍘熺‖缂栫爜锛?
+# 邮箱配置（优先环境变量，兼容原硬编码）
 # ============================================================
 SMTP_SERVER = "smtp.qq.com"
 SENDER = os.environ.get("SMTP_SENDER", "changmengyang2005@qq.com")
@@ -28,7 +28,7 @@ RECEIVER = os.environ.get("SMTP_RECEIVER", "changmengyang2005@qq.com")
 AUTH_CODE = os.environ.get("SMTP_AUTH_CODE", "sbjcsttjivgudede")
 
 # ============================================================
-# 寰俊娴嬭瘯鍙烽厤缃紙浼樺厛鐜鍙橀噺锛屽吋瀹瑰師纭紪鐮侊級
+# 微信测试号配置（优先环境变量，兼容原硬编码）
 # ============================================================
 WX_APPID = os.environ.get("WX_APPID", "wx690351c82e0d0129")
 WX_SECRET = os.environ.get("WX_SECRET", "5b15e6173e23e109cc23da97c31a86a0")
@@ -40,7 +40,7 @@ WX_SEND_API = "https://api.weixin.qq.com/cgi-bin/message/template/send"
 _wx_token = {"token": "", "expires_at": 0}
 
 # ============================================================
-# API / 鏃堕棿
+# API / 时间
 # ============================================================
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -50,40 +50,40 @@ API_ITEMS = "https://aihot.virxact.com/api/public/items"
 BJ = timezone(timedelta(hours=8))
 
 CAT_LABELS = {
-    "ai-models":  "妯″瀷鍙戝竷/鏇存柊",
-    "ai-products": "浜у搧鍙戝竷/鏇存柊",
-    "industry":   "琛屼笟鍔ㄦ€?,
-    "paper":      "璁烘枃鐮旂┒",
-    "tip":        "鎶€宸т笌瑙傜偣",
+    "ai-models":  "模型发布/更新",
+    "ai-products": "产品发布/更新",
+    "industry":   "行业动态",
+    "paper":      "论文研究",
+    "tip":        "技巧与观点",
 }
 CAT_ORDER = ["ai-models", "ai-products", "industry", "paper", "tip"]
 
 
 # ============================================================
-# 宸ュ叿
+# 工具
 # ============================================================
 def ts_to_human(iso: str) -> str:
     try:
         t = datetime.fromisoformat(iso.replace("Z", "+00:00"))
         local = t.astimezone(BJ)
         now_bj = datetime.now(BJ)
-        wday = ["鍛ㄤ竴", "鍛ㄤ簩", "鍛ㄤ笁", "鍛ㄥ洓", "鍛ㄤ簲", "鍛ㄥ叚", "鍛ㄦ棩"][local.weekday()]
+        wday = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][local.weekday()]
         hm = local.strftime("%H:%M")
         diff = (now_bj - local).total_seconds()
-        if diff < 60:       return "鍒氬垰"
-        if diff < 3600:     return f"{int(diff // 60)} 鍒嗛挓鍓?
-        if diff < 7200:     return f"1 灏忔椂 {int((diff - 3600) // 60)} 鍒嗛挓鍓?
-        if diff < 3600 * 6: return f"{int(diff // 3600)} 灏忔椂鍓?
-        if local.date() == now_bj.date(): return f"浠婂ぉ {hm}"
+        if diff < 60:       return "刚刚"
+        if diff < 3600:     return f"{int(diff // 60)} 分钟前"
+        if diff < 7200:     return f"1 小时 {int((diff - 3600) // 60)} 分钟前"
+        if diff < 3600 * 6: return f"{int(diff // 3600)} 小时前"
+        if local.date() == now_bj.date(): return f"今天 {hm}"
         yesterday = now_bj.date() - timedelta(days=1)
-        if local.date() == yesterday: return f"鏄ㄥぉ {hm}"
+        if local.date() == yesterday: return f"昨天 {hm}"
         return f"{local.strftime('%m/%d')} {wday} {hm}"
     except Exception:
         return iso
 
 
 def truncate(s: str, n: int = 280) -> str:
-    return s if len(s) <= n else s[:n] + "鈥?
+    return s if len(s) <= n else s[:n] + "…"
 
 
 def fetch_items() -> dict:
@@ -109,7 +109,7 @@ def fetch_items() -> dict:
 
 
 # ============================================================
-# 寰俊鎺ㄩ€?
+# 微信推送
 # ============================================================
 def _wx_get_token() -> str:
     now_ts = datetime.now().timestamp()
@@ -135,14 +135,14 @@ def push_to_wechat(items: list, date_str: str) -> bool:
 
     top = []
     for it in items[:5]:
-        top.append(f"  路 {it.get('title', '')[:40]}")
+        top.append(f"  · {it.get('title', '')[:40]}")
     digest = "\n".join(top)
 
     cats = {}
     for it in items:
         c = it.get("category", "other")
         cats[c] = cats.get(c, 0) + 1
-    cat_str = "  ".join(f"{CAT_LABELS.get(k, k)}脳{v}" for k, v in sorted(cats.items()))
+    cat_str = "  ".join(f"{CAT_LABELS.get(k, k)}×{v}" for k, v in sorted(cats.items()))
 
     now_str = datetime.now(BJ).strftime("%H:%M")
 
@@ -151,13 +151,13 @@ def push_to_wechat(items: list, date_str: str) -> bool:
         "template_id": WX_TEMPLATE_ID,
         "data": {
             "first": {
-                "value": f"AI HOT 瀹炴椂 路 {date_str}\n\n{cat_str}\n鍏?{len(items)} 鏉＄簿閫塡n\n{digest}\n\n鐐瑰嚮涓嬫柟鏌ョ湅瀹屾暣鏃ユ姤 鈫?,
+                "value": f"AI HOT 实时 · {date_str}\n\n{cat_str}\n共 {len(items)} 条精选\n\n{digest}\n\n点击下方查看完整日报 →",
                 "color": "#333333",
             },
-            "keyword1": {"value": f"{len(items)} 鏉?, "color": "#1565c0"},
+            "keyword1": {"value": f"{len(items)} 条", "color": "#1565c0"},
             "keyword2": {"value": f"{date_str} {now_str}", "color": "#888888"},
             "remark": {
-                "value": "\n鏉ユ簮: aihot.virxact.com\n姣忓ぉ 9:00/14:00/18:00 鑷姩鎺ㄩ€乗n閭鍚屾: changmengyang2005@qq.com",
+                "value": "\n来源: aihot.virxact.com\n每天 9:00/14:00/18:00 自动推送\n邮箱同步: changmengyang2005@qq.com",
                 "color": "#999999",
             },
         },
@@ -172,7 +172,7 @@ def push_to_wechat(items: list, date_str: str) -> bool:
 
 
 # ============================================================
-# HTML 閭欢鏋勫缓
+# HTML 邮件构建
 # ============================================================
 BASIC_CSS = """
 body { margin:0; padding:20px; background:#f5f5f5; font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
@@ -190,11 +190,11 @@ h2 { margin:28px 0 10px; font-size:17px; padding-left:10px; border-left:4px soli
 """
 
 SEC_COLORS = {
-    "妯″瀷鍙戝竷/鏇存柊": "#1565c0",
-    "浜у搧鍙戝竷/鏇存柊": "#6a1b9a",
-    "琛屼笟鍔ㄦ€?:       "#e65100",
-    "璁烘枃鐮旂┒":       "#2e7d32",
-    "鎶€宸т笌瑙傜偣":     "#c62828",
+    "模型发布/更新": "#1565c0",
+    "产品发布/更新": "#6a1b9a",
+    "行业动态":       "#e65100",
+    "论文研究":       "#2e7d32",
+    "技巧与观点":     "#c62828",
 }
 
 
@@ -211,8 +211,8 @@ def build_html(items: list) -> str:
         '<html><head><meta charset="utf-8">',
         f'<style>{BASIC_CSS}</style></head><body>',
         '<div class="card-wrap">',
-        f'<h1>AI HOT 瀹炴椂 路 {date_str}</h1>',
-        f'<p class="subtitle">鐢熸垚鏃堕棿锛歿now_bj.strftime("%H:%M")}  |  杩囧幓 6h 绮鹃€夛紙涓嶈冻鎵╄嚦 24h锛?|  鍏?{len(items)} 鏉? |  宸叉帹閫佸埌寰俊</p>',
+        f'<h1>AI HOT 实时 · {date_str}</h1>',
+        f'<p class="subtitle">生成时间：{now_bj.strftime("%H:%M")}  |  过去 6h 精选（不足扩至 24h） |  共 {len(items)} 条  |  已推送到微信</p>',
     ]
 
     idx = 0
@@ -222,7 +222,7 @@ def build_html(items: list) -> str:
             continue
         label = CAT_LABELS.get(cat, cat)
         color = SEC_COLORS.get(label, "#333")
-        lines.append(f'<h2 style="color:{color};border-left-color:{color};">{label}锛坽len(cat_items)} 鏉★級</h2>')
+        lines.append(f'<h2 style="color:{color};border-left-color:{color};">{label}（{len(cat_items)} 条）</h2>')
         for item in cat_items:
             idx += 1
             title = item.get("title", "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -233,16 +233,16 @@ def build_html(items: list) -> str:
 
             lines.append('<div class="item">')
             lines.append(f'<p class="item-title">{idx}. {title}</p>')
-            lines.append(f'<p class="item-source">鏉ユ簮锛歿source} 路 {ts_to_human(pub)}</p>')
+            lines.append(f'<p class="item-source">来源：{source} · {ts_to_human(pub)}</p>')
             lines.append(f'<p class="item-summary">{truncate(summary, 280)}</p>')
             if url:
-                lines.append(f'<p class="item-url"><a href="{url}">鏌ョ湅鍘熸枃 鈫?/a></p>')
+                lines.append(f'<p class="item-url"><a href="{url}">查看原文 →</a></p>')
             lines.append('</div>')
 
     for cat, cat_items in groups.items():
         label = CAT_LABELS.get(cat, cat)
         color = SEC_COLORS.get(label, "#333")
-        lines.append(f'<h2 style="color:{color};border-left-color:{color};">{label}锛坽len(cat_items)} 鏉★級</h2>')
+        lines.append(f'<h2 style="color:{color};border-left-color:{color};">{label}（{len(cat_items)} 条）</h2>')
         for item in cat_items:
             idx += 1
             title = item.get("title", "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -253,16 +253,16 @@ def build_html(items: list) -> str:
 
             lines.append('<div class="item">')
             lines.append(f'<p class="item-title">{idx}. {title}</p>')
-            lines.append(f'<p class="item-source">鏉ユ簮锛歿source} 路 {ts_to_human(pub)}</p>')
+            lines.append(f'<p class="item-source">来源：{source} · {ts_to_human(pub)}</p>')
             lines.append(f'<p class="item-summary">{truncate(summary, 280)}</p>')
             if url:
-                lines.append(f'<p class="item-url"><a href="{url}">鏌ョ湅鍘熸枃 鈫?/a></p>')
+                lines.append(f'<p class="item-url"><a href="{url}">查看原文 →</a></p>')
             lines.append('</div>')
 
     lines.append(
-        '<div class="foot">鏈棩鎶ョ敱 AI HOT API 鑷姩鐢熸垚  |  '
-        '鏁版嵁鏉ユ簮 <a href="https://aihot.virxact.com" style="color:#1976d2;">aihot.virxact.com</a>  |  '
-        '宸叉帹閫佸埌寰俊鏈嶅姟鍙?/div>'
+        '<div class="foot">本日报由 AI HOT API 自动生成  |  '
+        '数据来源 <a href="https://aihot.virxact.com" style="color:#1976d2;">aihot.virxact.com</a>  |  '
+        '已推送到微信服务号</div>'
     )
     lines.append('</div></body></html>')
     return "\n".join(lines)
@@ -287,18 +287,18 @@ def _smtp_send(msg):
             server.quit()
             return
         except Exception as e:
-            print(f"  [WARN] 绔彛 {port} 澶辫触: {e}")
+            print(f"  [WARN] 端口 {port} 失败: {e}")
             try:
                 server.quit()
             except Exception:
                 pass
-    raise RuntimeError("鎵€鏈?SMTP 绔彛鍧囪繛鎺ュけ璐?)
+    raise RuntimeError("所有 SMTP 端口均连接失败")
 
 
 def send_email(items: list, date_str: str):
     html = build_html(items)
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"AI HOT 瀹炴椂 路 {date_str}"
+    msg["Subject"] = f"AI HOT 实时 · {date_str}"
     msg["From"] = SENDER
     msg["To"] = RECEIVER
     msg.attach(MIMEText(html, "html", "utf-8"))
@@ -307,34 +307,34 @@ def send_email(items: list, date_str: str):
 
 
 # ============================================================
-# 涓绘祦绋?
+# 主流程
 # ============================================================
 def main():
     now = datetime.now(BJ)
-    print(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] 寮€濮嬫姄鍙?AI HOT 瀹炴椂绮鹃€?..")
+    print(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] 开始抓取 AI HOT 实时精选...")
     data = fetch_items()
     items = data.get("items", [])
     if not items:
-        print("  [WARN] 鏃犲疄鏃舵暟鎹紝璺宠繃鍙戦€?)
+        print("  [WARN] 无实时数据，跳过发送")
         return
 
     date_str = now.strftime("%Y-%m-%d")
-    print(f"  [OK] 鑾峰彇鎴愬姛: {date_str}, 鍏?{len(items)} 鏉?)
+    print(f"  [OK] 获取成功: {date_str}, 共 {len(items)} 条")
 
     cats = {}
     for it in items:
         c = it.get("category", "other")
         cats[c] = cats.get(c, 0) + 1
     for c, n in sorted(cats.items()):
-        print(f"    {CAT_LABELS.get(c, c)}: {n} 鏉?)
+        print(f"    {CAT_LABELS.get(c, c)}: {n} 条")
 
-    print("  鍙戦€侀偖浠?..")
+    print("  发送邮件...")
     html = send_email(items, date_str)
-    print(f"  [OK] 閭欢鍙戦€佹垚鍔?({len(html)} 瀛楃)")
+    print(f"  [OK] 邮件发送成功 ({len(html)} 字符)")
 
-    print("  鎺ㄩ€佸井淇℃ā鏉挎秷鎭?..")
+    print("  推送微信模板消息...")
     ok = push_to_wechat(items, date_str)
-    print(f"  {'[OK] 寰俊鎺ㄩ€佹垚鍔? if ok else '[WARN] 寰俊鎺ㄩ€佸け璐?}")
+    print(f"  {'[OK] 微信推送成功' if ok else '[WARN] 微信推送失败'}")
 
 
 if __name__ == "__main__":
