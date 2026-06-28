@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 搜索 - 仿百度搜索引擎</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+</head>
+<body>
+
+    <!-- ========== 顶部导航 ========== -->
+    <div class="top-nav" id="topNav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">🔍 AI 搜索</a>
+            <div class="nav-links">
+                <a href="https://www.baidu.com" target="_blank">百度</a>
+                <a href="https://www.google.com" target="_blank">Google</a>
+                <a href="https://www.bing.com" target="_blank">Bing</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 主容器 ========== -->
+    <div class="main-container" id="mainContainer">
+
+        <!-- 首页模式：居中大 Logo + 搜索框 -->
+        <div class="home-mode" id="homeMode">
+            <div class="logo-area">
+                <div class="logo-icon">🔍</div>
+                <h1 class="logo-text">
+                    <span class="logo-blue">AI</span>
+                    <span class="logo-red">搜索</span>
+                </h1>
+                <p class="logo-subtitle">智能搜索引擎 · 仿百度体验</p>
+            </div>
+
+            <div class="search-box-wrapper">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="请输入搜索关键词..."
+                        autocomplete="off"
+                        autofocus
+                    >
+                    <button class="search-btn" id="searchBtn" title="搜索">
+                        <span class="btn-text">AI 一下</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="hot-words">
+                <span>热门搜索：</span>
+                <a href="#" class="hot-word">AI 最新资讯</a>
+                <a href="#" class="hot-word">Python 教程</a>
+                <a href="#" class="hot-word">今日天气</a>
+                <a href="#" class="hot-word">世界杯</a>
+            </div>
+        </div>
+
+        <!-- 结果模式：顶部搜索栏 + 搜索结果 -->
+        <div class="result-mode" id="resultMode" style="display: none;">
+            <div class="result-header">
+                <a href="/" class="result-logo">🔍 <strong>AI 搜索</strong></a>
+                <div class="result-search-box">
+                    <input
+                        type="text"
+                        id="resultSearchInput"
+                        class="search-input"
+                        placeholder="请输入搜索关键词..."
+                        autocomplete="off"
+                    >
+                    <button class="search-btn" id="resultSearchBtn">
+                        <span class="btn-text">AI 一下</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索统计 -->
+            <div class="search-stats" id="searchStats"></div>
+
+            <!-- 搜索结果列表 -->
+            <div class="results-list" id="resultsList"></div>
+
+            <!-- 分页 -->
+            <div class="pagination" id="pagination"></div>
+
+            <!-- 发送到邮箱 -->
+            <div class="email-section" id="emailSection">
+                <div class="email-box">
+                    <span class="email-label">📧 将搜索结果发送到邮箱：</span>
+                    <input
+                        type="email"
+                        id="emailInput"
+                        class="email-input"
+                        placeholder="输入邮箱地址..."
+                    >
+                    <button class="email-btn" id="sendEmailBtn">发送</button>
+                    <span class="email-status" id="emailStatus"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========== 底部 ========== -->
+    <footer class="footer">
+        <p>© 2026 AI 搜索 | 仿百度风格搜索引擎演示 | 数据来源：DuckDuckGo</p>
+    </footer>
+
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>正在搜索中...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

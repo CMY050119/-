@@ -1,0 +1,28 @@
+# 大文件 / 二进制
+cc-switch.exe
+*.png
+*.jpg
+*.gif
+*.exe
+*.asar
+
+# 密钥（本地配置文件，云端用 GitHub Secrets）
+.env
+baidu-search/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 第三方工具
+WorkBuddy/
+Git/
+
+# Claude Code
+.claude/

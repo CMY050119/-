@@ -1,0 +1,32 @@
+name: AI HOT 日报
+
+on:
+  schedule:
+    # 北京时间 09:00 / 14:00 / 18:00 → UTC 01:00 / 06:00 / 10:00
+    - cron: "0 1,6,10 * * *"
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 运行日报脚本
+        env:
+          SMTP_SENDER: ${{ secrets.SMTP_SENDER }}
+          SMTP_RECEIVER: ${{ secrets.SMTP_RECEIVER }}
+          SMTP_AUTH_CODE: ${{ secrets.SMTP_AUTH_CODE }}
+          WX_APPID: ${{ secrets.WX_APPID }}
+          WX_SECRET: ${{ secrets.WX_SECRET }}
+          WX_OPENID: ${{ secrets.WX_OPENID }}
+          WX_TEMPLATE_ID: ${{ secrets.WX_TEMPLATE_ID }}
+        run: python ai_daily_email.py

@@ -1,0 +1,507 @@
+/* ============================================
+   仿百度搜索引擎 - 样式表
+   ============================================ */
+
+/* --- 基础重置 --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    background: #fff;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* --- 顶部导航 --- */
+.top-nav {
+    padding: 10px 0;
+    border-bottom: 1px solid #ebebeb;
+}
+
+.nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 18px;
+    font-weight: bold;
+    color: #3385ff;
+}
+
+.nav-links a {
+    color: #666;
+    font-size: 13px;
+    margin-left: 20px;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: #3385ff;
+}
+
+/* --- 主容器 --- */
+.main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- 首页模式 --- */
+.home-mode {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12vh;
+    width: 100%;
+}
+
+.logo-area {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-icon {
+    font-size: 60px;
+    margin-bottom: 5px;
+}
+
+.logo-text {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.logo-blue {
+    color: #3385ff;
+}
+
+.logo-red {
+    color: #de3c2e;
+}
+
+.logo-subtitle {
+    color: #999;
+    font-size: 14px;
+}
+
+/* --- 搜索框 --- */
+.search-box-wrapper {
+    width: 100%;
+    max-width: 650px;
+    padding: 0 20px;
+}
+
+.search-box {
+    display: flex;
+    border: 2px solid #c4c7ce;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    background: #fff;
+}
+
+.search-box:focus-within {
+    border-color: #4e6ef2;
+    box-shadow: 0 2px 8px rgba(78, 110, 242, 0.25);
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px 18px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #333;
+}
+
+.search-input::placeholder {
+    color: #bbb;
+}
+
+.search-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #4e6ef2, #3385ff);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.15s;
+    white-space: nowrap;
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #3b5de7, #2979ff);
+}
+
+.search-btn:active {
+    transform: scale(0.97);
+}
+
+.btn-text {
+    letter-spacing: 1px;
+}
+
+/* --- 热门搜索词 --- */
+.hot-words {
+    margin-top: 20px;
+    font-size: 13px;
+    color: #999;
+}
+
+.hot-words span {
+    color: #666;
+}
+
+.hot-word {
+    color: #3385ff;
+    margin: 0 8px;
+    transition: color 0.2s;
+}
+
+.hot-word:hover {
+    color: #de3c2e;
+    text-decoration: underline;
+}
+
+/* --- 结果模式 --- */
+.result-mode {
+    width: 100%;
+    max-width: 700px;
+    padding: 0 20px;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 0;
+    border-bottom: 1px solid #ebebeb;
+    margin-bottom: 10px;
+}
+
+.result-logo {
+    font-size: 20px;
+    color: #3385ff;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.result-search-box {
+    display: flex;
+    flex: 1;
+    max-width: 550px;
+    border: 2px solid #c4c7ce;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.result-search-box:focus-within {
+    border-color: #4e6ef2;
+    box-shadow: 0 1px 6px rgba(78, 110, 242, 0.2);
+}
+
+.result-search-box .search-input {
+    padding: 8px 14px;
+    font-size: 15px;
+}
+
+.result-search-box .search-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+}
+
+/* --- 搜索统计 --- */
+.search-stats {
+    color: #999;
+    font-size: 13px;
+    padding: 5px 0 15px 0;
+}
+
+/* --- 搜索结果列表 --- */
+.results-list {
+    margin-bottom: 20px;
+}
+
+.result-item {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-title {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.result-title a {
+    color: #1a0dab;
+    transition: color 0.2s;
+}
+
+.result-title a:hover {
+    color: #c00;
+}
+
+.result-title a:visited {
+    color: #609;
+}
+
+.result-url {
+    color: #006621;
+    font-size: 13px;
+    margin-bottom: 4px;
+    word-break: break-all;
+}
+
+.result-url .url-cite {
+    font-style: normal;
+}
+
+.result-snippet {
+    color: #545454;
+    font-size: 14px;
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+.result-snippet em {
+    color: #c00;
+    font-style: normal;
+    font-weight: bold;
+}
+
+/* --- 分页 --- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 25px 0;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    color: #3385ff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    border-color: #3385ff;
+    background: #f0f5ff;
+}
+
+.page-btn.active {
+    background: #3385ff;
+    color: #fff;
+    border-color: #3385ff;
+    cursor: default;
+}
+
+.page-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    border-color: #e8e8e8;
+}
+
+/* --- 邮箱发送区域 --- */
+.email-section {
+    margin: 20px 0 40px 0;
+    padding: 20px;
+    background: #f8f9ff;
+    border: 1px solid #e0e4f5;
+    border-radius: 10px;
+}
+
+.email-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.email-label {
+    font-size: 14px;
+    color: #555;
+    white-space: nowrap;
+}
+
+.email-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 9px 14px;
+    font-size: 14px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.email-input:focus {
+    border-color: #4e6ef2;
+    box-shadow: 0 0 0 2px rgba(78, 110, 242, 0.1);
+}
+
+.email-btn {
+    padding: 9px 24px;
+    background: linear-gradient(135deg, #52c41a, #73d13d);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.email-btn:hover {
+    background: linear-gradient(135deg, #49b016, #66c932);
+}
+
+.email-btn:active {
+    transform: scale(0.97);
+}
+
+.email-status {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.email-status.success {
+    color: #52c41a;
+}
+
+.email-status.error {
+    color: #ff4d4f;
+}
+
+.email-status.loading {
+    color: #faad14;
+}
+
+/* --- 加载动画 --- */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #3385ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* --- 底部 --- */
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-size: 12px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+}
+
+/* --- 响应式 --- */
+@media (max-width: 600px) {
+    .logo-text {
+        font-size: 36px;
+    }
+
+    .logo-icon {
+        font-size: 45px;
+    }
+
+    .search-box {
+        border-radius: 8px;
+    }
+
+    .search-input {
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+
+    .search-btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    .result-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .result-search-box {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .email-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .email-input {
+        min-width: 0;
+    }
+
+    .result-item {
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+    }
+
+    .result-title {
+        font-size: 15px;
+    }
+}
