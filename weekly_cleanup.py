@@ -21,11 +21,11 @@ if sys.platform == "win32":
 
 BJ = timezone(timedelta(hours=8))
 
-# SMTP
+# SMTP（从环境变量读取，不再硬编码敏感信息）
 SMTP_SERVER = "smtp.qq.com"
-SENDER = "changmengyang2005@qq.com"
-RECEIVER = "changmengyang2005@qq.com"
-AUTH_CODE = "sbjcsttjivgudede"
+SENDER = os.environ.get("SMTP_SENDER", "changmengyang2005@qq.com")
+RECEIVER = os.environ.get("SMTP_RECEIVER", "changmengyang2005@qq.com")
+AUTH_CODE = os.environ.get("SMTP_AUTH_CODE", "")
 
 # 清理目标（路径, 说明, 是否安全可删）
 TARGETS = [
@@ -150,6 +150,12 @@ def send_report(records: list, total_bytes: int):
 
 
 def main():
+    # 启动时校验必填环境变量
+    if not AUTH_CODE:
+        print("[FATAL] 缺少必要环境变量: SMTP_AUTH_CODE")
+        print("  请设置对应 GitHub Secrets 或环境变量后重试")
+        sys.exit(1)
+
     now = datetime.now(BJ)
     print(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] 开始每周磁盘清理...")
 

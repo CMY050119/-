@@ -20,20 +20,20 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # ============================================================
-# 邮箱配置（优先环境变量，兼容原硬编码）
+# 邮箱配置（从环境变量读取，不再硬编码敏感信息）
 # ============================================================
 SMTP_SERVER = "smtp.qq.com"
 SENDER = os.environ.get("SMTP_SENDER", "changmengyang2005@qq.com")
 RECEIVER = os.environ.get("SMTP_RECEIVER", "changmengyang2005@qq.com")
-AUTH_CODE = os.environ.get("SMTP_AUTH_CODE", "sbjcsttjivgudede")
+AUTH_CODE = os.environ.get("SMTP_AUTH_CODE", "")
 
 # ============================================================
-# 微信测试号配置（优先环境变量，兼容原硬编码）
+# 微信测试号配置（从环境变量读取）
 # ============================================================
-WX_APPID = os.environ.get("WX_APPID", "wx690351c82e0d0129")
-WX_SECRET = os.environ.get("WX_SECRET", "5b15e6173e23e109cc23da97c31a86a0")
-WX_OPENID = os.environ.get("WX_OPENID", "o7YP22-68lYQwL-ONRVjFenxRsJY")
-WX_TEMPLATE_ID = os.environ.get("WX_TEMPLATE_ID", "RuPAAS_yjeZx4L9KdYnRkMTxwuYtcxboWhygzE6gDZc")
+WX_APPID = os.environ.get("WX_APPID", "")
+WX_SECRET = os.environ.get("WX_SECRET", "")
+WX_OPENID = os.environ.get("WX_OPENID", "")
+WX_TEMPLATE_ID = os.environ.get("WX_TEMPLATE_ID", "")
 WX_TOKEN_API = "https://api.weixin.qq.com/cgi-bin/token"
 WX_SEND_API = "https://api.weixin.qq.com/cgi-bin/message/template/send"
 
@@ -310,6 +310,23 @@ def send_email(items: list, date_str: str):
 # 主流程
 # ============================================================
 def main():
+    # 启动时校验必填环境变量
+    missing = []
+    if not AUTH_CODE:
+        missing.append("SMTP_AUTH_CODE")
+    if not WX_APPID:
+        missing.append("WX_APPID")
+    if not WX_SECRET:
+        missing.append("WX_SECRET")
+    if not WX_OPENID:
+        missing.append("WX_OPENID")
+    if not WX_TEMPLATE_ID:
+        missing.append("WX_TEMPLATE_ID")
+    if missing:
+        print(f"[FATAL] 缺少必要环境变量: {', '.join(missing)}")
+        print("  请设置对应 GitHub Secrets 或环境变量后重试")
+        sys.exit(1)
+
     now = datetime.now(BJ)
     print(f"[{now.strftime('%Y-%m-%d %H:%M:%S')}] 开始抓取 AI HOT 实时精选...")
     data = fetch_items()
