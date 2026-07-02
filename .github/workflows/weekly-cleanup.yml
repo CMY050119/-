@@ -1,0 +1,28 @@
+name: 每周磁盘清理
+
+on:
+  schedule:
+    # 每周四 北京时间 12:00 → UTC 04:00
+    - cron: "0 4 * * 4"
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  weekly-cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 运行清理脚本
+        env:
+          SMTP_SENDER: ${{ secrets.SMTP_SENDER }}
+          SMTP_RECEIVER: ${{ secrets.SMTP_RECEIVER }}
+          SMTP_AUTH_CODE: ${{ secrets.SMTP_AUTH_CODE }}
+        run: python weekly_cleanup.py
